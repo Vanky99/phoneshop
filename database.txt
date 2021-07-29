@@ -1,0 +1,120 @@
+DROP DATABASE IF EXISTS akhom;
+
+CREATE DATABASE IF NOT EXISTS akhom;
+
+USE akhom;
+
+CREATE TABLE phones (
+    id INT(11) PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(255) NOT NULL,
+    brand_id INT(11) NOT NULL,
+    color VARCHAR(7) NOT NULL,
+    quantity INT(11) NOT NULL,
+    price INT(11) NOT NULL,
+    discount INT(1) NOT NULL,
+    is_opened TINYINT(1) NOT NULL
+);
+
+CREATE TABLE brands (
+    id INT(11) PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(255) NOT NULL
+);
+
+CREATE TABLE users (
+    id INT(11) PRIMARY KEY AUTO_INCREMENT,
+    username VARCHAR(20) UNIQUE NOT NULL,
+    pass VARCHAR(32) NOT NULL,
+    first_name VARCHAR(255) NOT NULL,
+    last_name VARCHAR(255) NOT NULL,
+    phone VARCHAR(10) NOT NULL,
+    address VARCHAR(255) NOT NULL,
+    token VARCHAR(255)
+);
+
+CREATE TABLE carts (
+    id INT(11) PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(255) NOT NULL,
+    phone VARCHAR(10) NOT NULL,
+    email VARCHAR(255),
+    address VARCHAR(255) NOT NULL,
+    time DATETIME NOT NULL,
+    is_ordered TINYINT(1) NOT NULL
+);
+
+CREATE TABLE carts_phones (
+    id INT(11) PRIMARY KEY AUTO_INCREMENT,
+    phone_id INT(11) NOT NULL,
+    cart_id INT(11) NOT NULL,
+    quantity INT(11) NOT NULL,
+    price INT(11) NOT NULL
+);
+
+CREATE TABLE posts (
+    id INT(11) PRIMARY KEY AUTO_INCREMENT,
+    phone_id INT(11) NOT NULL,
+    name VARCHAR(255) NOT NULL,
+    phone VARCHAR(10),
+    email VARCHAR(255),
+    rating INT(1) NOT NULL,
+    content VARCHAR(255) NOT NULL,
+    time DATETIME NOT NULL,
+    is_censored TINYINT(1) NOT NULL
+);
+
+CREATE TABLE comments (
+    id INT(11) PRIMARY KEY AUTO_INCREMENT,
+    user_id INT(11),
+    post_id INT(11) NOT NULL,
+    name VARCHAR(255) NOT NULL,
+    phone VARCHAR(10),
+    email VARCHAR(255),
+    content VARCHAR(255) NOT NULL,
+    time DATETIME NOT NULL,
+    is_censored TINYINT(1) NOT NULL
+);
+
+ALTER TABLE phones ADD CONSTRAINT fk_phones_brand_id FOREIGN KEY(brand_id) REFERENCES brands(id);
+ALTER TABLE carts_phones ADD CONSTRAINT fk_carts_phones_phone_id FOREIGN KEY(phone_id) REFERENCES phones(id);
+ALTER TABLE carts_phones ADD CONSTRAINT fk_carts_phones_cart_id FOREIGN KEY(cart_id) REFERENCES carts(id);
+ALTER TABLE posts ADD CONSTRAINT fk_posts_phones_id FOREIGN KEY(phone_id) REFERENCES phones(id);
+ALTER TABLE comments ADD CONSTRAINT fk_comments_post_id FOREIGN KEY(post_id) REFERENCES posts(id);
+ALTER TABLE comments ADD CONSTRAINT fk_comments_user_id FOREIGN KEY(user_id) REFERENCES users(id);
+
+INSERT INTO `users` (`id`, `username`, `pass`, `first_name`, `last_name`, `phone`, `address`, `token`) VALUES
+(1, 'admin', '123', 'Admin', 'Admin', '035655441', '702 Phan Đình Phùng', '23c8623aef8d2f45'),
+(2, 'akhom', '123', 'Anh', 'Akhom', '036988751', '702 Phan Đình Phùng', NULL);
+
+INSERT INTO `brands` (`id`, `name`) VALUES
+(1, 'Apple'),
+(2, 'Samsung'),
+(3, 'Oppo'),
+(4, 'Xiaomi'),
+(5, 'Vsmart');
+
+INSERT INTO `phones` (`id`, `name`, `brand_id`, `color`, `quantity`, `price`, `discount`, `is_opened`) VALUES
+(1, 'iPhone 12 Pro Max 128GB', 1, 'fff48f', 9, 32790000, 1, 1),
+(2, 'Xiaomi POCO X3 Pro NFC 8GB-256GB', 4, '111729', 0, 7990000, 6, 1),
+(3, 'Samsung Galaxy Note 20 Ultra', 2, '000000', 10, 25400000, 11, 0),
+(4, 'OPPO A73 6GB-128GB', 3, 'd64f2d', 21, 54100000, 2, 0),
+(5, 'Xiaomi Redmi Note 10 6GB-128GB', 4, '36c794', 3, 5490000, 6, 1),
+(6, 'Vsmart Live 4 6GB-64GB', 5, '1963b3', 1, 4290000, 4, 1),
+(9, 'Vsmart Joy 4', 5, '43c0d0', 21, 3570000, 2, 1);
+
+INSERT INTO `carts` (`id`, `name`, `phone`, `email`, `address`, `time`, `is_ordered`) VALUES
+(2, 'Anh Akhom', '0999888777', '', 'Cơ sở 2 Đại học phân hiệu Đà Nẵng tại Kon Tum', '2021-07-07 17:16:34', 1);
+
+INSERT INTO `carts_phones` (`id`, `phone_id`, `cart_id`, `quantity`, `price`) VALUES
+(1, 1, 2, 1, 32462100),
+(2, 5, 2, 1, 5160600);
+
+INSERT INTO `posts` (`id`, `phone_id`, `name`, `phone`, `email`, `rating`, `content`, `time`, `is_censored`) VALUES
+(1, 1, 'Thành Ba', '', '', 4, 'Sử dụng mượt mà&#44; camera khá là tốt. Tôi chụp vào buổi tối vẫn rất là nét', '2021-07-07 16:14:20', 1),
+(2, 1, 'Hoàng Ni', '', '', 5, 'Sài tốt đánh giá 5 sao', '2021-07-07 16:28:10', 1),
+(6, 3, 'Kolan', '', '', 5, 'Máy đẹp&#44; xài tốt', '2021-07-07 22:25:14', 1);
+
+INSERT INTO `comments` (`id`, `user_id`, `post_id`, `name`, `phone`, `email`, `content`, `time`, `is_censored`) VALUES
+(1, NULL, 1, 'Bành Văn Kỳ', '', '', 'Sử dụng đúng tốt luôn', '2021-07-07 16:30:37', 1),
+(2, NULL, 1, 'Jack Ma', '', '', 'Chơi game được không ta', '2021-07-07 16:32:52', 1),
+(3, 1, 2, '', NULL, NULL, 'Cảm ơn bài đánh giá của bạn', '2021-07-07 21:21:51', 1),
+(6, NULL, 2, 'Ko cần biết', '', '', 'Máy như này mà đòi bán', '2021-07-07 22:26:18', 0),
+(7, 1, 1, '', NULL, NULL, 'Máy hoàn toàn chơi mượt các tựa game trên iOS nhé', '2021-07-07 22:27:16', 1);
